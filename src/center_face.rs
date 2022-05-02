@@ -37,7 +37,7 @@ impl CenterFace {
         Ok(CenterFace { width, height, model })
     }
 
-    pub fn detect(&self, input: RgbImage) -> TractResult<Vec<Face>> {
+    pub fn detect(&self, input: &RgbImage) -> TractResult<Vec<Face>> {
         let org_width = input.width();
         let org_height = input.height();
 
@@ -65,9 +65,9 @@ impl CenterFace {
         Ok(faces)
     }
 
-    fn run(&self, input: RgbImage) -> TractResult<TVec<Arc<Tensor>>> {
+    fn run(&self, input: &RgbImage) -> TractResult<TVec<Arc<Tensor>>> {
         let image = imageops::resize(
-            &input, self.width, self.height, imageops::FilterType::Triangle,
+            input, self.width, self.height, imageops::FilterType::Triangle,
         );
         let image: Tensor = Array4::from_shape_fn(
             (1, 3, self.height as usize, self.width as usize),
@@ -181,7 +181,7 @@ mod tests {
         let cf = CenterFace::new(32 * 15, 32 * 20).unwrap();
         let mut image = image::open("resource/cabinet.jpg").unwrap().to_rgb8();
 
-        let faces = cf.detect(image.clone()).unwrap();
+        let faces = cf.detect(&image).unwrap();
 
         for f in faces {
             for x in f.x1..f.x2 {
