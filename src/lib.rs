@@ -1,3 +1,5 @@
+pub mod center_face;
+
 #[cfg(test)]
 mod tests {
     #[test]
