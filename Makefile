@@ -1,4 +1,10 @@
 
-model-download:
+get: get/image get/onnx
+
+get/image:
+	curl "https://upload.wikimedia.org/wikipedia/commons/e/ea/Kishida_Cabinet.jpg" \
+		-o resource/cabinet.jpg --create-dirs
+
+get/onnx:
 	curl "https://raw.githubusercontent.com/Star-Clouds/CenterFace/master/models/onnx/centerface.onnx" \
-	 	-o onnx/centerface.onnx --create-dirs
+	 	-o resource/centerface.onnx --create-dirs
