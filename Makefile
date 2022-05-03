@@ -11,3 +11,6 @@ get/onnx:
 
 detect:
 	cargo run --package wasabi --bin detect $(FILE)
+
+wasm/build:
+	wasm-pack build
