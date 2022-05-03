@@ -37,15 +37,15 @@ impl CenterFace {
         Ok(CenterFace { width, height, model })
     }
 
-    pub fn detect_with_resize(&self, input: &RgbImage) -> TractResult<Vec<Face>> {
-        let org_width = input.width();
-        let org_height = input.height();
+    pub fn detect_with_resize(&self, image: &RgbImage) -> TractResult<Vec<Face>> {
+        let org_width = image.width();
+        let org_height = image.height();
 
         let image = imageops::resize(
-            input, self.width, self.height, imageops::FilterType::Triangle,
+            image, self.width, self.height, imageops::FilterType::Triangle,
         );
 
-        let mut faces = self.detect(&image)?;
+        let mut faces = self.detect_image(&image)?;
 
         for i in 0..faces.len() {
             faces[i].x1 = faces[i].x1 * org_width / self.width;
@@ -62,8 +62,24 @@ impl CenterFace {
         Ok(faces)
     }
 
-    pub fn detect(&self, input: &RgbImage) -> TractResult<Vec<Face>> {
-        let result = self.run(input)?;
+    pub fn detect_image(&self, image: &RgbImage) -> TractResult<Vec<Face>> {
+        let image: Tensor = Array4::from_shape_fn(
+            (1, 3, self.height as usize, self.width as usize),
+            |(_, c, y, x)| {
+                image[(x as _, y as _)][c] as f32
+            },
+        ).into();
+
+        let faces = self.detect(image)?;
+
+        Ok(faces)
+    }
+
+
+    pub fn detect(&self, image: Tensor) -> TractResult<Vec<Face>> {
+        // image: (1, 3, height, width)
+
+        let result = self.model.run(tvec!(image))?;
 
         let heatmap = result.get(0).unwrap().to_array_view::<f32>()?;
         let scale = result.get(1).unwrap().to_array_view::<f32>()?;
@@ -73,17 +89,6 @@ impl CenterFace {
         let faces = self.decode(heatmap, scale, offset, landmark)?;
 
         Ok(faces)
-    }
-
-    fn run(&self, image: &RgbImage) -> TractResult<TVec<Arc<Tensor>>> {
-        let image: Tensor = Array4::from_shape_fn(
-            (1, 3, self.height as usize, self.width as usize),
-            |(_, c, y, x)| {
-                image[(x as _, y as _)][c] as f32
-            },
-        ).into();
-
-        self.model.run(tvec!(image))
     }
 
     fn decode(
