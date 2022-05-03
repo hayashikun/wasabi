@@ -37,18 +37,15 @@ impl CenterFace {
         Ok(CenterFace { width, height, model })
     }
 
-    pub fn detect(&self, input: &RgbImage) -> TractResult<Vec<Face>> {
+    pub fn detect_with_resize(&self, input: &RgbImage) -> TractResult<Vec<Face>> {
         let org_width = input.width();
         let org_height = input.height();
 
-        let result = self.run(input)?;
+        let image = imageops::resize(
+            input, self.width, self.height, imageops::FilterType::Triangle,
+        );
 
-        let heatmap = result.get(0).unwrap().to_array_view::<f32>()?;
-        let scale = result.get(1).unwrap().to_array_view::<f32>()?;
-        let offset = result.get(2).unwrap().to_array_view::<f32>()?;
-        let landmark = result.get(3).unwrap().to_array_view::<f32>()?;
-
-        let mut faces = self.decode(heatmap, scale, offset, landmark)?;
+        let mut faces = self.detect(&image)?;
 
         for i in 0..faces.len() {
             faces[i].x1 = faces[i].x1 * org_width / self.width;
@@ -65,10 +62,20 @@ impl CenterFace {
         Ok(faces)
     }
 
-    fn run(&self, input: &RgbImage) -> TractResult<TVec<Arc<Tensor>>> {
-        let image = imageops::resize(
-            input, self.width, self.height, imageops::FilterType::Triangle,
-        );
+    pub fn detect(&self, input: &RgbImage) -> TractResult<Vec<Face>> {
+        let result = self.run(input)?;
+
+        let heatmap = result.get(0).unwrap().to_array_view::<f32>()?;
+        let scale = result.get(1).unwrap().to_array_view::<f32>()?;
+        let offset = result.get(2).unwrap().to_array_view::<f32>()?;
+        let landmark = result.get(3).unwrap().to_array_view::<f32>()?;
+
+        let faces = self.decode(heatmap, scale, offset, landmark)?;
+
+        Ok(faces)
+    }
+
+    fn run(&self, image: &RgbImage) -> TractResult<TVec<Arc<Tensor>>> {
         let image: Tensor = Array4::from_shape_fn(
             (1, 3, self.height as usize, self.width as usize),
             |(_, c, y, x)| {
@@ -181,7 +188,7 @@ mod tests {
         let cf = CenterFace::new(32 * 15, 32 * 20).unwrap();
         let mut image = image::open("resource/cabinet.jpg").unwrap().to_rgb8();
 
-        let faces = cf.detect(&image).unwrap();
+        let faces = cf.detect_with_resize(&image).unwrap();
 
         for f in faces {
             for x in f.x1..f.x2 {
