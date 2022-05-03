@@ -8,3 +8,6 @@ get/image:
 get/onnx:
 	curl "https://raw.githubusercontent.com/Star-Clouds/CenterFace/master/models/onnx/centerface.onnx" \
 	 	-o resource/centerface.onnx --create-dirs
+
+detect:
+	cargo run --package wasabi --bin detect $(FILE)
