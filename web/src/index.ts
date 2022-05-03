@@ -41,7 +41,7 @@ function updateCanvas() {
             out[0] * scale, out[1] * scale,
             (out[2] - out[0]) * scale, (out[3] - out[1]) * scale
         );
-        dCtx!.fillStyle = "#00FF0099";
+        dCtx!.fillStyle = "#00FF00AA";
         dCtx!.fill();
         dCtx!.closePath();
     }
