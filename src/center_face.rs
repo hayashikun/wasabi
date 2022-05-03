@@ -5,20 +5,20 @@ use tract_onnx::prelude::*;
 use tract_onnx::prelude::tract_itertools::Itertools;
 use tract_onnx::prelude::tract_ndarray::{Array4, ArrayViewD};
 
-struct CenterFace {
+pub struct CenterFace {
     width: u32,
     height: u32,
     model: RunnableModel<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>,
 }
 
 #[derive(Debug, Clone)]
-struct Face {
-    x1: u32,
-    y1: u32,
-    x2: u32,
-    y2: u32,
-    score: f32,
-    landmarks: Vec<(u32, u32)>,
+pub struct Face {
+    pub x1: u32,
+    pub y1: u32,
+    pub x2: u32,
+    pub y2: u32,
+    pub score: f32,
+    pub landmarks: Vec<(u32, u32)>,
 }
 
 impl CenterFace {
@@ -174,42 +174,5 @@ impl CenterFace {
         }
 
         output
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use image::Rgb;
-
-    use crate::center_face::CenterFace;
-
-    #[test]
-    fn model_works() {
-        let cf = CenterFace::new(32 * 15, 32 * 20).unwrap();
-        let mut image = image::open("resource/cabinet.jpg").unwrap().to_rgb8();
-
-        let faces = cf.detect_with_resize(&image).unwrap();
-
-        for f in faces {
-            for x in f.x1..f.x2 {
-                for y in f.y1..f.y2 {
-                    let pixel = image.get_pixel(x, y);
-                    let pixel: Rgb<u8> = Rgb(
-                        [255 - pixel.0[0], 255 - pixel.0[1], 255 - pixel.0[2]]
-                    );
-                    image.put_pixel(x, y, pixel);
-                }
-            }
-
-            let pixel: Rgb<u8> = Rgb([255, 0, 0]);
-            for lm in f.landmarks {
-                for x in 0..4 {
-                    for y in 0..4 {
-                        image.put_pixel(lm.0 + x - 2, lm.1 + y - 2, pixel);
-                    }
-                }
-            }
-        }
-        image.save("resource/cabinet_processed.jpg").unwrap();
     }
 }
