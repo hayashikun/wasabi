@@ -1,4 +1,5 @@
 use std::cmp::{max, min};
+use std::io::BufReader;
 
 use image::{imageops, RgbImage};
 use tract_onnx::prelude::*;
@@ -25,7 +26,8 @@ impl CenterFace {
     pub fn new(width: u32, height: u32) -> TractResult<CenterFace> {
         let ws = (width / 32) as i32;
         let hs = (height / 32) as i32;
-        let model = onnx().model_for_path("resource/centerface.onnx")?
+        let onnx_model = include_bytes!("../resource/centerface.onnx");
+        let model = onnx().model_for_read(&mut BufReader::new(&onnx_model[..]))?
             .with_input_fact(0, InferenceFact::dt_shape(f32::datum_type(), tvec![1, 3, height as i32, width as i32]))?
             .with_output_fact(0, InferenceFact::dt_shape(f32::datum_type(), tvec![1, 1, 8 * hs, 8 * ws]))?
             .with_output_fact(1, InferenceFact::dt_shape(f32::datum_type(), tvec![1, 2, 8 * hs, 8 * ws]))?
