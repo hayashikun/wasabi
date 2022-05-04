@@ -34,16 +34,19 @@ function updateCanvas() {
     hCtx!.drawImage(video, 0, 0, hCanvas.width, hCanvas.height);
     dCtx!.drawImage(video, 0, 0, dCanvas.width, dCanvas.height);
     let data = hCtx!.getImageData(0, 0, width, height).data
-    let out = app.detect(Uint8Array.from(data))
-    if (out.length > 0) {
-        dCtx!.beginPath();
-        dCtx!.rect(
-            out[0] * scale, out[1] * scale,
-            (out[2] - out[0]) * scale, (out[3] - out[1]) * scale
-        );
-        dCtx!.fillStyle = "#00FF00AA";
-        dCtx!.fill();
-        dCtx!.closePath();
+    let faces: [any] | undefined = JSON.parse(app.detect(Uint8Array.from(data))).faces;
+    if (faces) {
+        faces.forEach((f) => {
+            dCtx!.beginPath();
+            dCtx!.rect(
+                f.x1 * scale, f.y1 * scale,
+                (f.x2 - f.x1) * scale, (f.y2 - f.y1) * scale
+            );
+            dCtx!.fillStyle = "#00FF00AA";
+            dCtx!.fill();
+            dCtx!.closePath();
+        })
     }
+
     requestAnimationFrame(updateCanvas)
 }

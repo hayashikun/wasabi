@@ -1,4 +1,5 @@
 use console_error_panic_hook;
+use serde::{Deserialize, Serialize};
 use tract_onnx::prelude::Tensor;
 use tract_onnx::prelude::tract_ndarray::Array4;
 use wasm_bindgen::prelude::*;
@@ -10,6 +11,11 @@ pub struct App {
     width: u32,
     height: u32,
     cf: CenterFace,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct DetectResult {
+    faces: Vec<Face>,
 }
 
 #[wasm_bindgen]
@@ -24,7 +30,7 @@ impl App {
         }
     }
 
-    pub fn detect(&self, array: Vec<u8>) -> Vec<u32> {
+    pub fn detect(&self, array: Vec<u8>) -> String {
         let w = self.width as usize;
         let h = self.height as usize;
         let image: Tensor = Array4::from_shape_fn(
@@ -34,12 +40,8 @@ impl App {
             },
         ).into();
         let faces: Vec<Face> = self.cf.detect(image).unwrap();
+        let result = DetectResult { faces };
 
-        if faces.len() < 1 {
-            vec![]
-        } else {
-            let f = faces.first().unwrap();
-            vec![f.x1, f.y1, f.x2, f.y2]
-        }
+        serde_json::to_string(&result).unwrap_or("{}".to_string())
     }
 }

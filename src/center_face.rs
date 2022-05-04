@@ -2,6 +2,7 @@ use std::cmp::{max, min};
 use std::io::BufReader;
 
 use image::{imageops, RgbImage};
+use serde::{Deserialize, Serialize};
 use tract_onnx::prelude::*;
 use tract_onnx::prelude::tract_itertools::Itertools;
 use tract_onnx::prelude::tract_ndarray::{Array4, ArrayViewD};
@@ -12,7 +13,7 @@ pub struct CenterFace {
     model: RunnableModel<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Face {
     pub x1: u32,
     pub y1: u32,
