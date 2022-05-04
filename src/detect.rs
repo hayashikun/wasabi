@@ -33,5 +33,5 @@ fn main() {
             }
         }
     }
-    image.save("resource/processed.jpg").unwrap();
+    image.save("../resource/processed.jpg").unwrap();
 }

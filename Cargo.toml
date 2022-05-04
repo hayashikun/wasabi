@@ -14,4 +14,4 @@ serde_json = "1.0"
 
 [[bin]]
 name = "detect"
-path = "src/bin/detect.rs"
+path = "src/detect.rs"
