@@ -1,0 +1,11 @@
+[package]
+name = "proxy-wasm"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasabi = { path = ".." }
+envoy-sdk = "0.2.0-alpha.1"
