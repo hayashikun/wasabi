@@ -10,7 +10,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@wasm-tool/wasm-pack-plugin": "^1.6.0",
     "gh-pages": "^3.2.3",
