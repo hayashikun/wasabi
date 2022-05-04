@@ -21,3 +21,5 @@ https://hayashikun.github.io/wasabi/
 cd web
 npm run dev
 ```
+
+<img src="web-wasm.gif" width="600px">
