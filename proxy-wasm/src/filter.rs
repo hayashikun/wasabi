@@ -1,8 +1,6 @@
 use envoy_sdk::extension::{ConfigStatus, ExtensionFactory, factory, HttpFilter, InstanceId, Result};
-use envoy_sdk::extension::filter::http;
-use envoy_sdk::host::{
-    ByteString, HttpClientRequestHandle, HttpClientResponseOps, log,
-};
+use envoy_sdk::extension::filter::http::{FilterDataStatus, RequestBodyOps};
+use envoy_sdk::host::{ByteString, log};
 
 pub struct WasabiHttpFilter {}
 
@@ -21,55 +19,20 @@ impl Default for WasabiHttpFilter {
 
 
 impl HttpFilter for WasabiHttpFilter {
-    fn on_request_headers(
-        &mut self,
-        num_headers: usize,
-        end_of_stream: bool,
-        _filter_ops: &dyn http::RequestHeadersOps,
-    ) -> Result<http::FilterHeadersStatus> {
-        log::info!("on_request_headers, {:?}, {:?}", num_headers, end_of_stream);
-        Ok(http::FilterHeadersStatus::Continue)
-    }
-
-    fn on_response_headers(
-        &mut self,
-        num_headers: usize,
-        end_of_stream: bool,
-        _filter_ops: &dyn http::ResponseHeadersOps,
-    ) -> Result<http::FilterHeadersStatus> {
-        log::info!("on_response_headers, {:?}, {:?}", num_headers, end_of_stream);
-        Ok(http::FilterHeadersStatus::Continue)
-    }
-
-    fn on_response_body(
+    fn on_request_body(
         &mut self,
         data_size: usize,
         end_of_stream: bool,
-        _ops: &dyn http::ResponseBodyOps,
-    ) -> Result<http::FilterDataStatus> {
-        log::info!("on_response_body, {:?}, {:?}", data_size, end_of_stream);
-        Ok(http::FilterDataStatus::Continue)
-    }
+        ops: &dyn RequestBodyOps,
+    ) -> Result<FilterDataStatus> {
+        if !end_of_stream {
+            return Ok(FilterDataStatus::Continue);
+        }
 
-    fn on_exchange_complete(
-        &mut self,
-        _ops: &dyn http::ExchangeCompleteOps,
-    ) -> Result<()> {
-        log::info!("on_exchange_complete");
-        Ok(())
-    }
+        let _bytes = ops.request_data(0, data_size)?;
+        log::info!("read bytes");
 
-    fn on_http_call_response(
-        &mut self,
-        request: HttpClientRequestHandle,
-        num_headers: usize,
-        body_size: usize,
-        num_trailers: usize,
-        _filter_ops: &dyn http::Ops,
-        _http_client_ops: &dyn HttpClientResponseOps,
-    ) -> Result<()> {
-        log::info!("on_http_call_response, {:?}, {:?}, {:?}, {:?}", request, num_headers, body_size, num_trailers);
-        Ok(())
+        Ok(FilterDataStatus::Continue)
     }
 }
 
