@@ -4,7 +4,7 @@ use tract_onnx::prelude::Tensor;
 use tract_onnx::prelude::tract_ndarray::Array4;
 use wasm_bindgen::prelude::*;
 
-use crate::center_face::{CenterFace, Face};
+use wasabi::center_face::{CenterFace, Face};
 
 #[wasm_bindgen]
 pub struct App {

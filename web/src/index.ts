@@ -1,4 +1,4 @@
-import * as wasabi from "../../pkg";
+import * as wasabi from "../../web-wasm/pkg";
 
 const width = 32 * 4 * 2
 const height = 32 * 3 * 2
