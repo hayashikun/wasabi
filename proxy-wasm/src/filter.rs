@@ -58,11 +58,11 @@ impl HttpFilter for WasabiHttpFilter {
         let image: Tensor = Array4::from_shape_fn(
             (1, 3, height, width),
             |(_, c, y, x)| {
-                pixels[(y * width + x) * 4 + c] as f32
+                pixels[(y * width + x) * 3 + c] as f32
             },
         ).into();
         let faces: Vec<Face> = self.cf.detect(image).unwrap();
-        log::info!("{:?}", faces);
+        log::info!("{} faces found!", faces.len());
 
         self.req_body = vec![];
         Ok(FilterDataStatus::Continue)
