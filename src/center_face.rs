@@ -4,7 +4,13 @@ use std::io::BufReader;
 use serde::{Deserialize, Serialize};
 use tract_onnx::prelude::*;
 use tract_onnx::prelude::tract_itertools::Itertools;
-use tract_onnx::prelude::tract_ndarray::{Array4, ArrayViewD};
+use tract_onnx::prelude::tract_ndarray::ArrayViewD;
+
+#[cfg(feature = "image")]
+use {
+    image::{imageops, RgbImage},
+    tract_onnx::prelude::tract_ndarray::Array4,
+};
 
 pub struct CenterFace {
     width: u32,
@@ -39,10 +45,8 @@ impl CenterFace {
         Ok(CenterFace { width, height, model })
     }
 
-    #[cfg(feature="image")]
+    #[cfg(feature = "image")]
     pub fn detect_with_resize(&self, image: &RgbImage) -> TractResult<Vec<Face>> {
-        use image::{imageops, RgbImage};
-
         let org_width = image.width();
         let org_height = image.height();
 
@@ -67,10 +71,8 @@ impl CenterFace {
         Ok(faces)
     }
 
-    #[cfg(feature="image")]
+    #[cfg(feature = "image")]
     pub fn detect_image(&self, image: &RgbImage) -> TractResult<Vec<Face>> {
-        use image::{imageops, RgbImage};
-
         let image: Tensor = Array4::from_shape_fn(
             (1, 3, self.height as usize, self.width as usize),
             |(_, c, y, x)| {
