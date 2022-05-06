@@ -10,4 +10,4 @@ crate-type = ["cdylib"]
 tract-onnx = "0.16.5"
 wasabi = { path = "..", default-features = false }
 envoy-sdk = "0.2.0-alpha.1"
-jpeg-decoder = { version = "0.2.1", default-features = false, features = ["platform_independent"] }
+jpeg-decoder = { git = "https://github.com/image-rs/jpeg-decoder", branch = "master", default-features = false }

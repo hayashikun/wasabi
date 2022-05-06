@@ -456,7 +456,7 @@ dependencies = [
  "color_quant",
  "exr",
  "gif",
- "jpeg-decoder",
+ "jpeg-decoder 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-iter",
  "num-rational",
  "num-traits",
@@ -516,6 +516,11 @@ checksum = "be7ef4b99870f0c9f2fc2f20dbef72707e2bcca675bb9196734cf433e999b0c5"
 dependencies = [
  "rayon",
 ]
+
+[[package]]
+name = "jpeg-decoder"
+version = "0.2.5"
+source = "git+https://github.com/image-rs/jpeg-decoder?branch=master#aa376faa280ba0b9ecf007aaec4bc3d5de070b7d"
 
 [[package]]
 name = "js-sys"
@@ -1009,7 +1014,7 @@ name = "proxy-wasm"
 version = "0.1.0"
 dependencies = [
  "envoy-sdk",
- "jpeg-decoder",
+ "jpeg-decoder 0.2.5 (git+https://github.com/image-rs/jpeg-decoder?branch=master)",
  "tract-onnx",
  "wasabi",
 ]
@@ -1259,7 +1264,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7cfada0986f446a770eca461e8c6566cb879682f7d687c8348aa0c857bd52286"
 dependencies = [
  "flate2",
- "jpeg-decoder",
+ "jpeg-decoder 0.2.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "weezl",
 ]
 
