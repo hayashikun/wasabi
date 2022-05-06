@@ -12,7 +12,7 @@ services:
       - 8000
 
   envoy:
-    image: envoyproxy/envoy:v1.17-latest
+    image: envoyproxy/envoy:v1.22-latest
     volumes:
       - ./envoy.yaml:/etc/envoy/envoy.yaml
       - ./target/wasm32-unknown-unknown/release/proxy_wasm.wasm:/etc/envoy/proxy_wasm.wasm
