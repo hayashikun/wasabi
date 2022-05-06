@@ -1,19 +1,32 @@
+use std::io::Cursor;
+
 use envoy_sdk::extension::{ConfigStatus, ExtensionFactory, factory, HttpFilter, InstanceId, Result};
 use envoy_sdk::extension::filter::http::{FilterDataStatus, RequestBodyOps};
 use envoy_sdk::host::{ByteString, log};
+use jpeg_decoder::Decoder;
+use tract_onnx::prelude::Tensor;
+use tract_onnx::prelude::tract_ndarray::Array4;
 
-pub struct WasabiHttpFilter {}
+use wasabi::center_face::{CenterFace, Face};
+
+pub struct WasabiHttpFilter {
+    cf: CenterFace,
+    req_body: Vec<u8>,
+}
 
 impl WasabiHttpFilter {
     pub fn new() -> Self {
-        WasabiHttpFilter {}
+        WasabiHttpFilter {
+            cf: CenterFace::new(640, 480).unwrap(),
+            req_body: vec![],
+        }
     }
 }
 
 
 impl Default for WasabiHttpFilter {
     fn default() -> Self {
-        WasabiHttpFilter {}
+        WasabiHttpFilter::new()
     }
 }
 
@@ -25,13 +38,33 @@ impl HttpFilter for WasabiHttpFilter {
         end_of_stream: bool,
         ops: &dyn RequestBodyOps,
     ) -> Result<FilterDataStatus> {
+        let bs = ops.request_data(0, data_size)?;
+        self.req_body.append(&mut bs.to_vec());
+
         if !end_of_stream {
             return Ok(FilterDataStatus::Continue);
         }
 
-        let _bytes = ops.request_data(0, data_size)?;
-        log::info!("read bytes");
+        let bytes = self.req_body.as_slice();
 
+        let mut decoder = Decoder::new(Cursor::new(bytes));
+
+        let pixels = decoder.decode()?;
+        log::info!("pixels: {:?}", pixels.len());
+
+        let width = 640;
+        let height = 480;
+
+        let image: Tensor = Array4::from_shape_fn(
+            (1, 3, height, width),
+            |(_, c, y, x)| {
+                pixels[(y * width + x) * 4 + c] as f32
+            },
+        ).into();
+        let faces: Vec<Face> = self.cf.detect(image).unwrap();
+        log::info!("{:?}", faces);
+
+        self.req_body = vec![];
         Ok(FilterDataStatus::Continue)
     }
 }

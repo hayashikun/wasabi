@@ -1009,6 +1009,8 @@ name = "proxy-wasm"
 version = "0.1.0"
 dependencies = [
  "envoy-sdk",
+ "jpeg-decoder",
+ "tract-onnx",
  "wasabi",
 ]
 
