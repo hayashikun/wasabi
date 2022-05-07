@@ -29,6 +29,8 @@ npm run dev
 cd proxy-wasm
 cargo build --release -p proxy-wasm --target wasm32-unknown-unknown
 docker-compose up
+curl -X POST -H 'Content-Type: image/jpeg' \
+  --data-binary @resource/image.jpg http://localhost:10000
 ```
 
 <img src="proxy-wasm.png" width="600px">
