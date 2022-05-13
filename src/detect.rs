@@ -9,29 +9,38 @@ fn main() {
     if args.len() < 2 {
         return;
     }
-    let cf = CenterFace::new(32 * 15, 32 * 20).unwrap();
-    let mut image = image::open(args[1].clone()).unwrap().to_rgb8();
+    let file = args[1].clone();
+    let mut image = image::open(&file).unwrap().to_rgb8();
+    let wf = image.width() / 32 / 2;
+    let hf = image.height() / 32 / 2;
+    let cf = CenterFace::new(32 * wf, 32 * hf).unwrap();
+    println!("model initialized");
     let faces = cf.detect_with_resize(&image).unwrap();
+    println!("{} faces are detected", faces.len());
 
+    let green: Rgb<u8> = Rgb([0, 255, 0]);
+    let lw = 4;
     for f in faces {
-        for x in f.x1..f.x2 {
+        for d in 0..lw {
+            for x in f.x1..f.x2 {
+                image.put_pixel(x, f.y1 + d - lw / 2, green);
+                image.put_pixel(x, f.y2 + d - lw / 2, green);
+            }
             for y in f.y1..f.y2 {
-                let pixel = image.get_pixel(x, y);
-                let pixel: Rgb<u8> = Rgb(
-                    [255 - pixel.0[0], 255 - pixel.0[1], 255 - pixel.0[2]]
-                );
-                image.put_pixel(x, y, pixel);
+                image.put_pixel(f.x1 + d - lw / 2, y, green);
+                image.put_pixel(f.x2 + d - lw / 2, y, green);
             }
         }
 
-        let pixel: Rgb<u8> = Rgb([255, 0, 0]);
         for lm in f.landmarks {
-            for x in 0..4 {
-                for y in 0..4 {
-                    image.put_pixel(lm.0 + x - 2, lm.1 + y - 2, pixel);
+            for x in 0..lw {
+                for y in 0..lw {
+                    image.put_pixel(lm.0 + x - lw / 2, lm.1 + y - lw / 2, green);
                 }
             }
         }
     }
-    image.save("../resource/processed.jpg").unwrap();
+
+    let parts: Vec<&str> = file.rsplitn(2, ".").collect();
+    image.save(format!("{}_processed.{}", parts[1], parts[0])).unwrap();
 }

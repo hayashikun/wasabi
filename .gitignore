@@ -1,6 +1,6 @@
 target
 
 .idea
-resource
+centerface.onnx
 
 .DS_Store
