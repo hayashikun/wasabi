@@ -11,8 +11,14 @@ fn main() {
     }
     let file = args[1].clone();
     let mut image = image::open(&file).unwrap().to_rgb8();
-    let wf = image.width() / 32 / 2;
-    let hf = image.height() / 32 / 2;
+
+    let scale = if args.len() > 2 {
+        args[2].clone().parse().unwrap_or(1)
+    } else {
+        1
+    };
+    let wf = image.width() / 32 / scale;
+    let hf = image.height() / 32 / scale;
     let cf = CenterFace::new(32 * wf, 32 * hf).unwrap();
     println!("model initialized");
     let faces = cf.detect_with_resize(&image).unwrap();
