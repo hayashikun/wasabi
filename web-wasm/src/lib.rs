@@ -1,5 +1,5 @@
+use std::collections::HashMap;
 use console_error_panic_hook;
-use serde::{Deserialize, Serialize};
 use tract_onnx::prelude::Tensor;
 use tract_onnx::prelude::tract_ndarray::Array4;
 use wasm_bindgen::prelude::*;
@@ -11,11 +11,6 @@ pub struct App {
     width: u32,
     height: u32,
     cf: CenterFace,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct DetectResult {
-    faces: Vec<Face>,
 }
 
 #[wasm_bindgen]
@@ -40,7 +35,8 @@ impl App {
             },
         ).into();
         let faces: Vec<Face> = self.cf.detect(image).unwrap();
-        let result = DetectResult { faces };
+        let mut result = HashMap::new();
+        result.insert("faces", faces);
 
         serde_json::to_string(&result).unwrap_or("{}".to_string())
     }
